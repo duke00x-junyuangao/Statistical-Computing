@@ -94,6 +94,8 @@ Output:
 
 Conclusion: there is subtle changes through each 10 years. Generally, Turkey and Spain are always in top 5, and USSR, Tunisia and Iran nearly reach top 5 each time.
 
+####################################################################################################
+
 2b
 # Use if and elif to set the condition to avoid entering >=2 arguments and to make a help function.
 myfun() {
@@ -110,6 +112,7 @@ myfun() {
 	less print.csv
      fi;}
 
+###################################################################################################
 3
 #First use curl  to get the html  
 	
@@ -117,9 +120,9 @@ myfun() {
 	
 #then sed to find all txt file name, 
 	
-#then use xargs  substitutes the file name to the % in the arguments in sh command,	
-#sh -c enables printing the exact filename to screen while downloading it: 
-	with echo, it outputs the filename, with wget, it downloads the files (-q quites the print).
+#then use xargs to substitute the file name to the "%" in sh,	
+#use sh -c and echo to output the filename
+#wget downloads selected files
 
 Code:
 curl -s "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/" | grep -o "href=\".*\.txt\"" | sed 's/href=\"\(.*\.txt\)\"/\1/' | xargs -I % sh -c 'echo %; wget -q https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/%'	

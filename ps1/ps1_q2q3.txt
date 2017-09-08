@@ -1,0 +1,125 @@
+ps1 Q2-Q3
+Junyuan Gao, SID 26484653
+
+
+2a
+# download and unzip data
+wget -O test.csv "http://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=itemCode:526&DataMartId=FAO&Format=csv&c=2,3,4,5,6,7&s=countryName:asc,elementCode:asc,year:desc"
+
+unzip test.csv
+mv UNdata_Export_20170908_020321329.csv ps1q2.csv
+
+sed -n /+/p ps1q2.csv >regions.csv           #extract regions to a csv
+sed  /+/d ps1q2.csv  >countries.csv  	     #extract countries to a csv
+
+# Determine 5 countries with largest "area harvested"
+grep 'Area Harvested.*2005\|2005.*Area Harvested' countries.csv |awk '{gsub(/\"/,"")};1'|
+cut -d',' -f1,6 | sort -r -n -t',' -k 2 > 2005.csv
+grep 'Area Harvested.*1965\|1965.*Area Harvested' countries.csv |awk '{gsub(/\"/,"")};1'|
+cut -d',' -f1,6 | sort -r -n -t',' -k 2 > 1965.csv
+grep 'Area Harvested.*1975\|1975.*Area Harvested' countries.csv |awk '{gsub(/\"/,"")};1'|
+cut -d',' -f1,6 | sort -r -n -t',' -k 2 > 1975.csv
+grep 'Area Harvested.*1985\|1985.*Area Harvested' countries.csv |awk '{gsub(/\"/,"")};1'|
+cut -d',' -f1,6 | sort -r -n -t',' -k 2 > 1985.csv
+grep 'Area Harvested.*1995\|1995.*Area Harvested' countries.csv |awk '{gsub(/\"/,"")};1'|
+cut -d',' -f1,6 | sort -r -n -t',' -k 2 > 1995.csv
+
+head -n 5 1965.csv
+head -n 5 1975.csv
+head -n 5 1985.csv
+head -n 5 1995.csv
+head -n 5 2005.csv
+
+Output:
+#1965:
+#USSR,60000.00000
+
+#Turkey,46500.00000
+
+#United States of America,15460.00000
+
+#Spain,15100.00000
+
+#Tunisia,15000.00000
+
+
+#1975 
+#USSR,71000.00000
+
+#Turkey,41500.00000
+
+#Spain,23300.00000
+
+#Tunisia,18981.00000
+
+#Italy,14000.00000
+
+
+#1985 
+
+#Turkey,47250.00000
+
+#USSR,45000.00000
+
+#Spain,20000.00000
+
+#Iran Islamic Republic of,16504.00000
+
+#Tunisia,15000.00000
+
+
+#1995 
+
+#Turkey,57355.00000
+
+#Iran Islamic Republic of,28000.00000
+
+#Spain,22500.00000
+
+#Ukraine,18600.00000
+
+#Tunisia,17000.00000
+
+
+#2005 
+#Turkey,60000.00000
+
+#Iran Islamic Republic of,49388.00000
+
+#Pakistan,28884.00000
+
+#Uzbekistan,28000.00000
+
+#Algeria,22888.00000
+
+Conclusion: there is subtle changes through each 10 years. Generally, Turkey and Spain are always in top 5, and USSR, Tunisia and Iran nearly reach top 5 each time.
+
+2b
+# Use if and elif to set the condition to avoid entering >=2 arguments and to make a help function.
+myfun() {
+    if [ $# != 1 ]
+
+    then echo "Wrong number of parameters, only enter 1 number is enough"
+    elif [ $1 == '-h' ] 
+    then echo "You only need to type in 1 number as item code, e.g. 562. If this doesn't help, please contact Chris at Evans 495"
+    else
+	wget -O test.csv "http://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=itemCode:$1
+&DataMartId=FAO&Format=csv&c=2,3,4,5,6,7&s=countryName:asc,elementCode:asc,year:desc"
+
+	unzip -p test.csv > print.csv
+	less print.csv
+     fi;}
+
+3
+#First use curl  to get the html  
+	
+#then use grep to get the txt & href link , 
+	
+#then sed to find all txt file name, 
+	
+#then use xargs  substitutes the file name to the % in the arguments in sh command,	
+#sh -c enables printing the exact filename to screen while downloading it: 
+	with echo, it outputs the filename, with wget, it downloads the files (-q quites the print).
+
+Code:
+curl -s "https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/" | grep -o "href=\".*\.txt\"" | sed 's/href=\"\(.*\.txt\)\"/\1/' | xargs -I % sh -c 'echo %; wget -q https://www1.ncdc.noaa.gov/pub/data/ghcn/daily/%'	

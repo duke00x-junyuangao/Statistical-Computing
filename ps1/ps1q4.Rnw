@@ -1,0 +1,17 @@
+\documentclass{article}
+
+\begin{document}
+
+
+\textbf{The result of your solution to Problem 3 should look like this page} \par
+The height of the water level in Lake Huron fluctuates over time. Here I ¡¯analyze¡¯ the variation using R. I
+show a histogram of the lake levels for the period $ \Sexpr{attributes(LakeHuron)[1]$tsp[1]} $ to $ \Sexpr{attributes(LakeHuron)[1]$tsp[2]} $.
+
+
+<<fig.width= 2.8, fig.height=3, fig.align='left'>>=
+hist(LakeHuron)
+lowHi <- c(which.min(LakeHuron), which.max(LakeHuron))
+yearExtrema <- attributes(LakeHuron)$tsp[1]-1 + lowHi
+@
+
+\end{document}

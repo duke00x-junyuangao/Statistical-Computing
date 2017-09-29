@@ -1,0 +1,332 @@
+\documentclass{article}
+
+\title{STAT 243 PS 3}
+\author{Junyuan Gao(SID:26484653)}
+
+\begin{document}
+\maketitle
+
+\section{Q2}
+
+\subsection{a}
+<<>>==
+# read play text from website
+shakespeare <- readLines("http://www.gutenberg.org/cache/epub/100/pg100.txt")
+shakespeare <- shakespeare[sapply(shakespeare, nchar) > 0]
+# omit first sonnet and last play
+front_index <- grep("1603", shakespeare)[1] #before are "The Sonnets" and info 
+end_index <- grep("1609", shakespeare)[3]-1 #after are "A Lover's complaint"
+shakespeare_clean<- shakespeare[front_index : end_index]
+
+# grep the index of year and 'THE END' of the play
+year_index <- grep('^[0-9]{4}$', shakespeare_clean) 
+tail_index <- grep('THE END', shakespeare_clean)
+
+# save the desired play into a list
+play <- list()
+for (i in 1:length(year_index)){
+  play[[i]] <- shakespeare_clean[year_index[i]:tail_index[i]]
+}
+@
+
+\subsection{b}
+I choose not to generate a list in part(b) and create the list in part(d)
+see 2(d)iv.
+<<>>==
+# Get year and title of plays
+years_of_play <- shakespeare_clean[year_index]
+titles_of_play <- shakespeare_clean[year_index+1]
+act_scene <- c()
+scenes_of_play <- c()
+acts_of_play <- c()
+
+# To get number of acts, write a function to
+# grep the last character of "ACT X", convert
+# roman to numeric to count
+get_numeric <- function(x){
+  x= strsplit(x[length(x)], "")[[1]]
+  x= x[length(x)]
+  return (as.numeric(as.roman(x)))
+}
+# get number of scenes and acts of plays
+for (i in 1:length(year_index)){
+  act <- shakespeare_clean[year_index[i]:tail_index[i]
+              ][grep('^ACT (I|II|III|IV|V).',
+              shakespeare_clean[year_index[i]:tail_index[i]])]
+  scene <- shakespeare_clean[year_index[i]:tail_index[i]
+              ][grep('SCENE|Scene', 
+              shakespeare_clean[year_index[i]:tail_index[i]])]
+  scenes_of_play[i] <- length(scene)-1
+  
+  unique_act <- unique(gsub("SCENE .*"," ", act))
+  unique_act <- unique(gsub(" ", "", gsub("\\. .*","", unique_act)))
+  acts_of_play[i] <- get_numeric(unique_act)
+}
+#by checking the result and real text, I find that the scenes/act info 
+#in 2nd play is mostly of the form ACT_1|SCENE_2, so can't be
+#detected in this case, so manually set it as 5
+acts_of_play[2]=5
+
+# extract body of plays(for 2c and 2d)
+body <- c()
+for (i in 1:length(year_index)){
+  begin <- grep('SCENE|Scene',  play[[i]])[1] 
+  body[i]<- paste(play[[i]][begin :length(play[[i]])],collapse = "\n")
+}
+@
+
+\subsection{c}
+<<>>==
+# find spoken chunks by paste text between 2 speakers
+spoken_text <- list()
+length(spoken_text) <- length(year_index)
+for (i in 1:length(year_index)){
+  k=1
+  tempvec<- c()
+  #the pattern of speakers is "name."
+  #NAME might be 1 or 2 words
+  #(1) this line detect speaker pattern in Play 4
+  
+#pattern = "([[:upper:]]+\\. [[:upper:]][^A-Z])|
+  #(^\\s{2,4}[A-Z]{1}[a-z]+\\. [[:upper:]][^A-Z])"(easier to read in pdf)
+  for (j in 1: length(play[[i]])){
+    pattern = "([[:upper:]]+\\. [[:upper:]][^A-Z])|(^\\s{2,4}[A-Z]{1}[a-z]+\\. [[:upper:]][^A-Z])"
+    if (grepl(pattern, play[[i]][j])){ #(1)
+      spoken_text[[i]][k] = tempvec
+      tempvec <- c()
+      k = k+1
+    }
+    tempvec <- paste(tempvec, play[[i]][j])
+  }
+}
+
+for (i in 1:length(year_index)){
+  spoken_text[[i]]= spoken_text[[i]][-1]
+}
+
+#get speakers and dailogues in plays
+speaker_list <- list()
+pure_spoken_text<- list()
+length(speaker_list) <- length(year_index)
+length(pure_spoken_text) <- length(year_index)
+# extract word before first "." to get speaker
+# extract word after first "." to get spoken text
+for (i in 1:length(year_index)){
+  for (j in 1:length(spoken_text[[i]])) {
+    speaker_list[[i]][j]= gsub('\\. .*$', '', spoken_text[[i]][j])
+    pure_spoken_text[[i]][j]= 
+      sub('.*? .+(\\.)', '', gsub("\\s{4}", "", spoken_text[[i]][j]))
+  }
+}
+
+@
+
+\subsection{d}
+i. Number of Unique Speakers
+<<>>==
+library(stringr)
+
+speakers <- c()
+for(i in 1: length(year_index)){
+  speakers[i]= length(unique(speaker_list[[i]]))
+}
+@
+\n
+
+ii. Number of Spoken Chunks
+<<>>==
+num_spoken_chunk <- list()
+for (i in 1:length(year_index)){
+  num_spoken_chunk[i] <- length(spoken_text[[i]])
+  }
+@
+\n
+
+iii. For each play, calculate number of sentences, 
+words spoken and average number of words per chunk.
+<<>>==
+num_sentence <- list()
+length(num_sentence) <- length(year_index)
+num_word <- list()
+length(num_word) <- length(year_index)
+
+ave_word <-c()
+num_sentences_play <- c()
+word_spoken_play<- c()
+
+for (i in 1:length(year_index)){
+  for (j in 1: length(spoken_text[[i]])){
+    num_sentence[[i]][j]= 
+      str_count(pure_spoken_text[[i]][j], "(\\.)|(\\;)|(\\?)")
+    num_word[[i]][j]= str_count(pure_spoken_text[[i]][j], '\\w+')
+                      -str_count(pure_spoken_text[[i]][j], "\\'")
+  }
+  # desired variables for 2(d) iii
+  num_sentences_play[i]= sum(num_sentence[[i]])
+  word_spoken_play[i]= sum(num_word[[i]])
+  ave_word[i]= word_spoken_play[i]/num_spoken_chunk[[i]]
+}
+@
+\n
+
+iv. The number of unique words.
+<<>>==
+unique_words <- list()
+length(unique_words) <- length(year_index)
+for (i in 1:length(year_index)){
+  unique_words[i] = length(unique(str_extract_all(toupper(body[i]), 
+                                                  "\\w+")[[1]]))
+}
+
+#create a data object(linked list) to save results in 2b 2c and 2d
+shakespeare_list <- list()
+length(shakespeare_list) <- length(year_index)
+
+for (i in 1: length(year_index)){
+  shakespeare_list[[i]] = list(Year = years_of_play[i], 
+                               Scenes= scenes_of_play[i],
+                           Acts= acts_of_play[i], Body= body[i], 
+                           Unique_speakers= speakers[i],
+                           Spoken_chunks= num_spoken_chunk[i], 
+                           Sentences= num_sentences_play[i],
+                           Words_Spoken= word_spoken_play[i], 
+                           Ave_Word_Per_Chunk= ave_word[i],
+                           Unique_words=unique_words[i])
+}
+names(shakespeare_list)=titles_of_play
+
+attributes(shakespeare_list)
+
+@
+
+\subsection{e}
+<<>>==
+library(ggplot2)
+#create data frame df_2e for report and ggplot
+df_2e <- data.frame(Year = as.numeric(years_of_play),
+                    Play_Name= titles_of_play,
+                    Number_Acts= acts_of_play,
+                    Number_Scenes= scenes_of_play,
+                    Unique_speakers= as.numeric(speakers),
+                 Spoken_chunks= as.numeric(num_spoken_chunk), 
+                 Sentences= as.numeric(num_sentences_play),
+                 Words_Spoken= as.numeric(word_spoken_play), 
+                 Ave_Word_Per_Chunk= as.numeric(ave_word),
+                 Unique_words= as.numeric(unique_words))
+
+#report summary
+summary(df_2e) 
+
+#############################
+##############################
+#
+#Report statistics
+df_2e
+
+#produce plots of summary statistics in 2(d)
+p1 <- ggplot(data=df_2e, aes(y=Unique_speakers, x=Year))+ 
+  ylab("Number of Unique Speakers")+
+  geom_line()
+
+p2 <- ggplot(data=df_2e, aes(y=Spoken_chunks, x=Year))+ 
+  ylab("Number of Spoken Chunks")+
+  geom_line()
+
+p3 <- ggplot(data=df_2e, aes(y=Sentences, x=Year))+ 
+  ylab("Number of Sentences")+
+  geom_line()
+
+p4 <- ggplot(data=df_2e, aes(y=Words_Spoken, x=Year))+ 
+  ylab("Number of Word Spoken")+
+  geom_line()
+
+p5 <- ggplot(data=df_2e, aes(y=Ave_Word_Per_Chunk, x=Year))+ 
+  ylab("Average Word Per Chunk")+
+  geom_line()
+
+p6 <- ggplot(data=df_2e, aes(y=Unique_words, x=Year))+ 
+  ylab("Number of Unique Words")+
+  geom_line()
+
+# print 6 plots together
+library(gridExtra)
+grid.arrange(p1,p2,p3,p4,p5,p6, ncol=2)
+@
+There is no significant trend in plots except plot 1. In plot 1,
+the number of unique speakers in plays seems to have a period of
+5 year.
+Possible explanation might be the small size of data(only 36).
+If more observation is available, there might be some trend detected.
+
+
+\section{Q3}
+\subsection{a}
+Following pseudocode show the fields and methods of the class "shakespeare"
+<< eval=FALSE >>==
+library(methods)
+setClass("shakespeare",
+         representation(
+           year = "numeric",  #requirements for 2b
+           title = "character",
+           number_of_acts = "numeric",
+           number_of_scenes = "numeric",
+           body = "character",
+           
+           spokenText = "matrix",  #requirements for 2c
+           speaker="list"
+      
+           number_unique_speakers = "numeric",  #requirements for 2d (i)
+           number_of_chunks = "numeric",   #requirements for 2d (ii)
+           number_of_sentence = "numeric",  #requirements for 2d (iii)
+           number_of_word = "numeric",  #requirements for 2d (iii)
+           ave_word = "numeric", #requirements for 2d (iii)
+           numer_of_unique_word = "numeric" #requirements for 2d (iv)
+         )
+        methods=list(
+          get_title = function()(x),
+          count_scene = function()(x),
+          count_act = function()(x),
+          get_SpokenText = function()(x),
+          get_speaker = function()(x),
+          count_speaker = function()(x),
+        )
+)
+
+@
+Just as it's illustrated above, those fields indicates to desired variables
+and those methods works similar to the functions to get those desired
+variables.
+
+\subsection{b}
+<<>>==
+# 1. "get_title()" is designed to get the title of play. It is a method 
+# processing to play which takes a the whole text file as input(many strings)
+# and creates the "title" field. Its output is a string of characters.
+ 
+# 2. "count_scene()" is designed to count the number of scene of plays. 
+# It is a method providing play info which takes a the whole text file as 
+# input(many strings) and creates the " number_of_scenes" field. Its output 
+# is a vector of numerics.
+
+# 3. "count_act()" is designed to count the number of acts of plays. It is a
+# method providing play info which takes a the whole text file as 
+# input(many strings) and creates the " number_of_acts" field. Its output 
+# is a vector of numerics.
+
+# 4. "get_SpokenText()" is designed to get the spoken text of play.
+# It is a method processing to play which takes a the a list of 
+# character strings as input and modifies the "SpokenText" field. 
+# Its output is a character matrix.
+
+# 5. "get_speaker()" is designed to get the speaker of play. It is a 
+# method processing to play which takes the body of plays(a list of large 
+# string of characters) as input and modifies the "speaker" field. Its 
+# output is a list of characterstrings.
+
+# 6. "count_speaker()" is designed to count the number of unique speakers
+# of plays.  It is a method providing play info which takes field "speaker"
+# as input and creates the " number_unique_speakers" field. Its output is 
+# a vector of numerics.
+@
+
+\end{document}

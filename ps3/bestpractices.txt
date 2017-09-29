@@ -1,0 +1,39 @@
+PS3, Probem1Code and Data for the Social Sciences: A Practitioner’s GuideIn this article, the authors illustrates the following in a readable way.
+Chapters:
+2 Automation 
+3 Version Control 
+4 Directories 
+5 Keys 
+6 Abstraction 
+7 Documentation 
+8 Management
+Here, I want to do some reading notes about this article that fitting my personal needs: doing project individually or collaboratively using Git, R, Python. 
+• Automation:	
+Rules(A) Automate everything that can be automated.(B) Write a single script that executes all code from beginning to end.
+•Version Control:	
+Rules(A) Store code and data under version control.(B) Run the whole directory before checking it back in.
+
+•Directions:	
+Rules(A) Separate directories by function.(B) Separate files into inputs and outputs.(C) Make directories portable.
+•Keys:	
+Rules(A) Store cleaned data in tables with unique, non-missing keys.(B) Keep data normalized as far into your code pipeline as you can.	
+•Abstraction:Rules(A) Abstract to eliminate redundancy.(B) Abstract to improve clarity.(C) Otherwise, don’t abstract.
+
+•DocumentationRules(A) Don’t write documentation you will not maintain.(B) Code should be self-documenting.
+
+•Management
+Rules(A) Manage tasks with a task management system.(B) E-mail is not a task management system.
+
+•Code Style:
+Keep it short and purposeful.
+Make your functions shy.
+Order your functions for linear reading.
+Us descriptive names.
+Pay special attention to coding algebra.
+Make logical switches intuitive.
+Be consistent.
+Check for errors.
+Write tests.
+Profile slow code relentlessly.
+Store “too much” output from slow code.
+Separate slow code from fast code.

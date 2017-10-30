@@ -1,0 +1,29 @@
+1.
+Goal: Simulation studies were conducted to investigate the finite sample properties of the test.(More specifically, to evaluate the rate of convergence of 2LR to its limiting distribution)
+Metrics: p-values computed from formula (14) with approximation error & truncation error
+
+2.
+
+
+3. Yes, I think their tables are neat and clear.
+
+4. 
+(a)for single normal v.s. two component normal mixture:
+There is no strong evidence that the power depends on the mixing proportion.
+Generally speaking, the simulated power of unadjusted test is larger than that of adjusted tests
+simulated power increase as D increase/¦Á increase/sample size increase
+simulated power decrease as D decrease/¦Á decrease/sample size decrease
+
+
+(b)for mixture of two normals v.s. mixture of three normals:
+There is no strong correlation between sample size and power
+Generally speaking, the simulated power of unadjusted test is larger than that of adjusted tests
+simulated power increase as D1+D2 increase/¦Á increase
+simulated power decrease as D1+D2 decrease/¦Á decrease
+
+
+
+5.
+(a)I think 1000 simulation is appropriate:not computational intensive, and the sample size will not cause huge bias.
+(b)10 simulation is not enough since it will cause variablity, unconverge bias and voluntary response bias.
+(c)Use the formula of calculating sample size: n= (¦Ò*Z(¦Á/2) /d)^2, where ¦Ò is standard error, ¦Á=Pr(Type I error), d= 2*length_of_CI.

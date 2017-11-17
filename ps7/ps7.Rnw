@@ -167,7 +167,7 @@ while (min >0){
   num_lbda1 <- eigen(eigen_vecs %*% lambda1 %*% t(eigen_vecs))$values
   num_lbda1 <- sort(num_lbda1, decreasing = TRUE)
   
-  error <- c(error, sum((eigen_vals - num_lbda1)^2) )
+  error <- c(error, sqrt(sum((eigen_vals - num_lbda1)^2)) )
   cond_num<- c(cond_num, max(num_lbda1)/min(num_lbda1))
   min= min(num_lbda1)
   i= i+1
@@ -188,7 +188,7 @@ abs(cond_num[i-1])
 @
 When emperical condition number is at 9.951082e+15 magnitude and true condition number is at 1e+22 magnitude, the matrix is not numerically positive semi-definite.\\
 Moreover, from above values of errors and condition numbers, we can see that 
-(1)the error approximately increases in $10^2$ magnitude as the eigenvalues increase in $10^1$ magnitude, and 
+(1)the error approximately increases in $10^1$ magnitude as the eigenvalues increase in $10^1$ magnitude, and 
 (2) the error increases as condition number increases until condition number become negative(at which point the matrix is no more numerically positive semi-definite).
 
 \end{document}

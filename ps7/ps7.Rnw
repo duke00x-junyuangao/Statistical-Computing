@@ -158,7 +158,7 @@ min=1
 cond_num= c()
 error=c()
 while (min >0){
-  set.seed(2)
+  set.seed(124)
   # increase the magnitude of eigenvalues and generate a random vector
   # of eigenvalues for each magnitude
   eigen_vals = c(10^i, sort(runif(98, min =1e-4, max =10^i),
@@ -184,10 +184,30 @@ abs(cond_num[i-1])
 # True condition number
 10^(i+4-1)
 
-
+library(ggplot2)
+df <- data.frame(Index <- 5:(i-1+4), Error = error,
+      logError = log(error), CondNum = cond_num)
+# create the plot of Error v.s. the order of magnitude of eigenvalues
+p1 <- ggplot(df) +
+  geom_line(aes(x = Index, y = Error)) +
+  ggtitle("Error v.s. Magnitude") + 
+  xlab("Order of Magnitude of Eigenvalues")
+p1
+# create the plot of log Error v.s. the order of magnitude of eigenvalues
+p3 <- ggplot(df) +
+  geom_line(aes(x = Index, y = logError)) +
+  ggtitle("log Error v.s. Magnitude") + 
+  xlab("Order of Magnitude of Eigenvalues")
+p3
+# create the plot of Error v.s. true condition numbers
+p2 <- ggplot(df) +
+  geom_line(aes(x = abs(CondNum), y = Error)) +
+  ggtitle("Error v.s. Condition Number") + 
+  xlab("Condition Number")
+p2
 @
-When emperical condition number is at 9.951082e+15 magnitude and true condition number is at 1e+22 magnitude, the matrix is not numerically positive semi-definite.\\
-Moreover, from above values of errors and condition numbers, we can see that 
+When emperical condition number is at 1.932677e+16 magnitude and true condition number is at 1e+16 magnitude, the matrix is not numerically positive semi-definite.\\
+Moreover, from above values of errors and condition numbers and plots, we can see that 
 (1)the error approximately increases in $10^1$ magnitude as the eigenvalues increase in $10^1$ magnitude, and 
 (2) the error increases as condition number increases until condition number become negative(at which point the matrix is no more numerically positive semi-definite).
 
